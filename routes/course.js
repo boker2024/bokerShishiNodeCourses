@@ -1,11 +1,11 @@
-import { addCourse, getAllCourses, getCourseById } from '../controllers/course.js';
+import { addCourse, deleteCourseById, getAllCourses, getCourseById } from '../controllers/course.js';
 import express from "express";
-import { auth } from '../middlwares/auth.js';
+import { auth, authAdmin } from '../middlwares/auth.js';
 
 const router = express.Router();
 
-router.get('/', getAllCourses);
-router.get('/:id', getCourseById);
+router.get('/', auth,getAllCourses);
+router.get('/:id',auth, getCourseById);
 router.post('/', auth, addCourse);
-
+router.delete("/:id",auth,deleteCourseById)
 export default router;

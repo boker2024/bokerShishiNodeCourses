@@ -15,7 +15,8 @@ const courseSchema = mongoose.Schema({
     numLessons: Number,
     speaker: SpeakerSchema,
     tags: [String],
-    startDate: { type: Date, default: Date.now() }
+    startDate: { type: Date, default: Date.now() },
+    ownerId: String
 })
 
 export const Course = mongoose.model("courses", courseSchema);

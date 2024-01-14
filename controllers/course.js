@@ -24,8 +24,8 @@ const getAllCourses = async (req, res) => {
 
 
         let allCourses = await Course.find(filter)
-        .skip(page*(perPage-1))//לדלג על כמות תואצות מסויימת
-        .limit(perPage);//שולך כמות מוגבלת של נתונים
+            .skip(page * (perPage - 1))//לדלג על כמות תואצות מסויימת
+            .limit(perPage);//שולך כמות מוגבלת של נתונים
 
         res.json(allCourses);
     }
@@ -63,7 +63,7 @@ const addCourse = async (req, res) => {
         // let newCourse= new Course({name,numLessons,price,tags,speaker});
         // await newCourse.save();
 
-        let newCourse = await Course.create({ name, numLessons, price, tags, speaker });
+        let newCourse = await Course.create({ name, numLessons, price, tags, speaker, ownerId: req.user._id });
 
         res.json(newCourse);
 
@@ -74,5 +74,22 @@ const addCourse = async (req, res) => {
 }
 
 
+const deleteCourseById = async (req, res) => {
+    try {
+        let { id } = req.params;
+        if (!mongoose.isValidObjectId(id))
+            return res.status(400).json({ type: "id error", message: "id is not valid" })
 
-export { addCourse, getAllCourses, getCourseById };
+        const course = await Course.findById(id);
+        if (!course)
+            return res.status(404).json({ type: "id not found to delete", message: "didnt find " })
+        if (!req.user.role == "ADMIN" && !req.user._id == course.ownerId)
+            return res.status(403).json({ type: "epration not allowed", message: "only manager or owner can delete " })
+        const deleted = await Course.findByIdAndDelete(id);
+        res.json(deleted);
+    }
+    catch (err) {
+        res.status(400).json({ type: "error", message: err.message })
+    }
+}
+export { addCourse, getAllCourses, getCourseById, deleteCourseById };

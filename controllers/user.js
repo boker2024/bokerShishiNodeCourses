@@ -24,7 +24,7 @@ export const addUser = async (req, res) => {
         let newUser = new User({ userName, password: hashedPassword, email, tz });
         await newUser.save();
         let token = generateToken(newUser);
-        return res.json({ token })
+        return res.json({ token, userName: newUser.userName, email: newUser.email })
 
     } catch (err) {
         res.status(400).json({ type: "error", message: err.message })
@@ -48,7 +48,8 @@ export const login = async (req, res) => {
             res.status(404).json({ type: "no such user", message: "please sign up" })
 
         let token = generateToken(user);
-        return res.json({ token })
+        // return res.json({ token })
+        return res.json({ token, userName: user.userName, email: user.email })
         // user.password = "****";
         // return user;
     }
