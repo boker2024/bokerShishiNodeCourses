@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Course } from "../models/course.js";
 
+import { validateCourse } from "../models/course.js";
 const getAllCourses = async (req, res) => {
     //params -חובה
     //query params
@@ -19,12 +20,12 @@ const getAllCourses = async (req, res) => {
 
     try {
         let filter = {};
-        if (search);
-        filter.name = ex1;//{ name: ex1 }
+        if (search)
+            filter.name = ex1;//{ name: ex1 }
 
 
         let allCourses = await Course.find(filter)
-            .skip(page * (perPage - 1))//לדלג על כמות תואצות מסויימת
+            .skip((page - 1) * perPage)//לדלג על כמות תואצות מסויימת
             .limit(perPage);//שולך כמות מוגבלת של נתונים
 
         res.json(allCourses);
@@ -53,8 +54,11 @@ const getCourseById = async (req, res) => {
 const addCourse = async (req, res) => {
     try {
         let { name, price, tags, numLessons, speaker } = req.body;
-        if (!name || !speaker || !price)
-            return res.status(404).json({ type: "missing paramters", message: "name or price or speaker" })
+        let result = validateCourse(req.body)
+        if (result.error)
+            return res.status(400).json({ type: "Invalid data", message: result.error.details[0].message })
+        // if (!name || !price)
+        // return res.status(404).json({ type: "missing paramters", message: "name or price or speaker" })
 
         let sameCourse = await Course.findOne({ name, price });
         if (sameCourse)
@@ -63,7 +67,10 @@ const addCourse = async (req, res) => {
         // let newCourse= new Course({name,numLessons,price,tags,speaker});
         // await newCourse.save();
 
-        let newCourse = await Course.create({ name, numLessons, price, tags, speaker, ownerId: req.user._id });
+        let newCourse = await Course.create({
+            name, numLessons, price, tags, speaker,
+            // ownerId: req.user._id 
+        });
 
         res.json(newCourse);
 
@@ -83,8 +90,8 @@ const deleteCourseById = async (req, res) => {
         const course = await Course.findById(id);
         if (!course)
             return res.status(404).json({ type: "id not found to delete", message: "didnt find " })
-        if (!req.user.role == "ADMIN" && !req.user._id == course.ownerId)
-            return res.status(403).json({ type: "epration not allowed", message: "only manager or owner can delete " })
+        // if (!req.user.role == "ADMIN" && !req.user._id == course.ownerId)
+        //     return res.status(403).json({ type: "epration not allowed", message: "only manager or owner can delete " })
         const deleted = await Course.findByIdAndDelete(id);
         res.json(deleted);
     }

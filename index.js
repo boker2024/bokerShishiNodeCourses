@@ -10,10 +10,11 @@ import cors from "cors";
 config();//מאפשר לכתוב משתני סביבה בקובץ 
 connectToDB();
 //.env
-const app = express();
 
+const app = express();
+app.use(cors())
 app.use(express.json());
-app.use(cors({origin:"http://127.0.0.1:5400" ,methods:"*"}))//כך נאפשר שקליינט יוכל
+// app.use(cors({ origin: "http://127.0.0.1:5400", methods: "*" }))//כך נאפשר שקליינט יוכל
 //לגשת לשרת הזה שאנחנו בונים כאן
 //אבל רק מקליינט שמורץ על כתובת  הנל
 
